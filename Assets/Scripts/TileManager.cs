@@ -5,17 +5,18 @@ using UnityEngine;
 public class TileManager : MonoBehaviour
 {
     [SerializeField] private int height, width;
-    public List<List<Tile>> tiles=new List<List<Tile>>();
+    private List<List<Tile>> tiles = new List<List<Tile>>();
     private float timer;
-    // Start is called before the first frame update
+    //awake called before start, needed because RenderManager runs off of Start and requires the Tiles be baked at that point
     void Awake()
     {
         //need to make all of the tiles
-        for(int x=0; x < width; x++)
+        for (int x = 0; x < width; x++)
         {
             List<Tile> tempCol = new List<Tile>();
-            for(int y = 0; y < height; y++)
+            for (int y = 0; y < height; y++)
             {
+                //for the moment, creating air filled tiles, except for outside edge, as a way to test air flow.
                 Gas airContent;
                 if (y > 0 && y < height && x > 0 && x < width)
                 {
@@ -25,7 +26,7 @@ public class TileManager : MonoBehaviour
                 {
                     airContent = GasPresets.Air(0);
                 }
-                Tile tempTile = new Tile(x, y, airContent) ;
+                Tile tempTile = new Tile(x, y, airContent);
                 tempCol.Add(tempTile);
             }
             tiles.Add(tempCol);
@@ -42,42 +43,52 @@ public class TileManager : MonoBehaviour
         {
             //tick is sixth of a second
             //all update logic goes here
+
+            //iterate through tiles, since this IS tilemanager
             foreach (List<Tile> j in tiles)
             {
                 foreach (Tile i in j)
                 {
-                    if (i.active)
+                    //checks if active to save on compute cycles, since we are likely to have quite a few tiles going.
+                    if (i.isActive())
                     {
+                        //maybe compile this into a function? Maybe toss it into i.updateTile
+                        (int xCoord, int yCoord) = i.getCoords();
                         foreach (Gas e in i.getGasContents())
                         {
                             //spread gas
-                            e.spreadToTiles(findTile(i.xCoord - 1, i.yCoord), findTile(i.xCoord + 1, i.yCoord), findTile(i.xCoord, i.yCoord - 1), findTile(i.xCoord, i.yCoord + 1));
+                            e.spreadToTiles(findTile(xCoord - 1, yCoord), findTile(xCoord + 1, yCoord), findTile(xCoord, yCoord - 1), findTile(xCoord, yCoord + 1));
                         }
-                    }
                     i.updateTile();
+                    }
                 }
             }
+            //reset timer if it's over .1 seconds
             timer = 0;
         }
     }
     public Tile findTile(int x, int y)
     {
-        return tiles[x][y] ;
+        return tiles[x][y];
     }
     public List<Tile> renderTileSubset(Vector3 camLoc)
     {
         List<Tile> tempList = new List<Tile>();
-        //for i in range 40, for j in range 40, findTile[i][j]
-        for(int i = -20; i <= 20; i++)
+        //checks for all tiles a certain radius around the camera location, and returns them.
+        for (int i = -20; i <= 20; i++)
         {
-            for(int j = -20; j <= 20; j++)
+            for (int j = -20; j <= 20; j++)
             {
-                if (camLoc.x+i >= 0 && camLoc.y+j >= 0)
+                if (camLoc.x + i >= 0 && camLoc.y + j >= 0)
                 {
-                    tempList.Add(findTile((int) camLoc.x+i, (int) camLoc.y+j));
+                    tempList.Add(findTile((int)camLoc.x + i, (int)camLoc.y + j));
                 }
             }
         }
         return tempList;
+    }
+    public List<List<Tile>> getTiles()
+    {
+        return tiles;
     }
 }

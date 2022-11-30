@@ -5,9 +5,9 @@ using UnityEngine;
 public class RenderManager : MonoBehaviour
 {
     [SerializeField] private Transform cam;
-    List<Tile> visibleTiles = new List<Tile>();
-    TileManager tileManager;
-    [SerializeField] GameObject tilePrefab;
+    private List<Tile> visibleTiles = new List<Tile>();
+    private TileManager tileManager;
+    [SerializeField] private GameObject tilePrefab;
     void Awake()
     {
         tileManager = gameObject.GetComponent<TileManager>();
@@ -15,11 +15,13 @@ public class RenderManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //I'm thinking starting off generating the tiles, then moving the camera around and generating new tiles to, say, the right when moving right, and deleting tiles to the left when moving right. But either way, the original tiles need to be created.
         visibleTiles = tileManager.renderTileSubset(cam.position);
         foreach (Tile i in visibleTiles)
         {
+            (int xCoord, int yCoord) = i.getCoords();
             GameObject gameObj = Instantiate(tilePrefab);
-            gameObj.transform.position = new Vector3(i.xCoord, i.yCoord, 0);
+            gameObj.transform.position = new Vector3(xCoord, yCoord, 0);
         }
     }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class Gas
 {
-    public string type;
+    private string type;
     private List<string> tags = new List<string>();
     private int amount;
     public Gas(string type, List<string> tags, int amount)
@@ -34,6 +34,7 @@ public class Gas
     }
     public void spreadToTiles(Tile tile1, Tile tile2, Tile tile3, Tile tile4)
     {
+        //TODO:: Clean this the heck up, mate. There's GOT to be a better way of doing this.
         Gas tempGas=new Gas(null,null,0), tempGas1 = tempGas, tempGas2 = tempGas, tempGas3 = tempGas, tempGas4 = tempGas;
         List<Gas> temp;
         int total=0, num=0;
@@ -94,19 +95,19 @@ public class Gas
         tempGas = new Gas(this.type, this.tags, total);
         if (tile1 != null)
         {
-            tile1.nextGas.Add(tempGas);
+            tile1.addNextGas(tempGas);
         }
         if (tile2 != null)
         {
-            tile2.nextGas.Add(tempGas);
+            tile2.addNextGas(tempGas);
         }
         if (tile3 != null)
         {
-            tile3.nextGas.Add(tempGas);
+            tile3.addNextGas(tempGas);
         }
         if (tile4 != null)
         {
-            tile4.nextGas.Add(tempGas);
+            tile4.addNextGas(tempGas);
         }
     }
 }

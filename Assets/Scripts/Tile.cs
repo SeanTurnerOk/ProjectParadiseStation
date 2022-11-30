@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 public class Tile
 {
-    public int xCoord, yCoord;
-    public bool active = false;
+    private int xCoord, yCoord;
+    private bool active = false;
     private List<Liquid> liquids = new List<Liquid>();
     private List<Gas> gasses=new List<Gas>();
-    public List<Gas> nextGas=new List<Gas>();
+    private List<Gas> nextGas=new List<Gas>();
     private List<Item> items=new List<Item>();
     private Station station;
     private Critter critter;
@@ -29,7 +29,7 @@ public class Tile
     }
     public (Gas, int) getGas(string type) {
         for(int i =0;i<gasses.Count;i++){
-            if (gasses[i].type == type)
+            if (gasses[i].getType() == type)
             {
                 return (gasses[i],i);
             }
@@ -40,12 +40,24 @@ public class Tile
     {
         for(int i = 0; i < gasses.Count; i++)
         {
-            if (gasses[i].type == gasItem.type){
+            if (gasses[i].getType() == gasItem.getType()){
                 gasses[i]=gasItem;
                 return;
             }
         }
         gasses.Add(gasItem);
+    }
+    public (int, int) getCoords()
+    {
+        return (this.xCoord, this.yCoord);
+    }
+    public bool isActive()
+    {
+        return this.active;
+    }
+    public void addNextGas(Gas gas)
+    {
+        nextGas.Add(gas);
     }
     public void updateTile()
     {
@@ -56,7 +68,7 @@ public class Tile
             bool found = false;
             foreach(Gas k in this.gasses)
             {
-                if (i.type == k.type)
+                if (i.getType() == k.getType())
                 {
                     k.increaseAmount(i.getAmount());
                     found = true;
